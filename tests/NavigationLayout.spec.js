@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-
-const webelementNavBarItems = page.locator('//nav[contains(@class, "desktop:items-center hidden")]/a');  //locator for the top navigation bar
+import { NavigationPage } from './pages/navigation.page.js';
 
 test('Navigate to Home Page', async ({ page }) => {
   await page.goto('https://mb.io/en/');
@@ -9,18 +8,21 @@ test('Navigate to Home Page', async ({ page }) => {
 });
 
 test('Top navigation renders with all expected items visible', async ({ page }) => {
-  await expect(page.locator('//nav[contains(@class, "desktop:items-center hidden")]')).toBeVisible();  //validates the top navigation bar is visible
-  await expect(webelementNavBarItems.nth(0)).toHaveText('Explore');  //validates the Explore menu item is visible
-  await expect(webelementNavBarItems.nth(1)).toHaveText('Features');  //validates the Features menu item is visible
-  await expect(webelementNavBarItems.nth(2)).toHaveText('OTC Desk');  //validates the OTC Desk menu item is visible
-  await expect(webelementNavBarItems.nth(3)).toHaveText('Company');  //validates the Company menu item is visible
-  await expect(webelementNavBarItems.nth(4)).toHaveText('Support');  //validates the Support menu item is visible
-  await expect(webelementNavBarItems.nth(5)).toHaveText('$MBG');  //validates the $MBG menu item is visible
+  const navigation = new NavigationPage(page);
+
+  await expect(navigation.navLocator).toBeVisible();  //validates the top navigation bar is visible
+  await expect(navigation.navItems.nth(0)).toHaveText('Explore');  //validates the Explore menu item is visible
+  await expect(navigation.navItems.nth(1)).toHaveText('Features');  //validates the Features menu item is visible
+  await expect(navigation.navItems.nth(2)).toHaveText('OTC Desk');  //validates the OTC Desk menu item is visible
+  await expect(navigation.navItems.nth(3)).toHaveText('Company');  //validates the Company menu item is visible
+  await expect(navigation.navItems.nth(4)).toHaveText('Support');  //validates the Support menu item is visible
+  await expect(navigation.navItems.nth(5)).toHaveText('$MBG');  //validates the $MBG menu item is visible
 
 });
 
 test('Each navigation item links to the correct destination', async ({ page }) => {
-  
+  const navigation = new NavigationPage(page);
+
   const navItems = [
     { name: 'Explore', expectedTitle: 'Explore' },
     { name: 'Features', expectedTitle: 'Features' },
@@ -31,7 +33,7 @@ test('Each navigation item links to the correct destination', async ({ page }) =
   ];
 
   for (const item of navItems) {
-    const navItem = page.locator(`//nav[contains(@class, "desktop:items-center hidden")]//a[contains(text(), "${item.name}")]`);
+    const navItem = navigation.navLocator.locator(`a:has-text("${item.name}")`);
     await navItem.click();
     await page.waitForLoadState('networkidle');
     
@@ -49,12 +51,13 @@ test('Navigation behaves correctly at standard desktop viewport sizes', async ({
     { width: 1920, height: 1080 },
   ];
 
-  const navLocator = page.locator('//nav[contains(@class, "desktop:items-center hidden")]');
-  const navItems = navLocator.locator('a');
+  const navigation = new NavigationPage(page);
+  const navLocator = navigation.navLocator;
+  const navItems = navigation.navItems;
 
   for (const vp of viewports) {
     await page.setViewportSize(vp);
-    await page.goto('https://mb.io/en/');
+    await navigation.goto();
 
     await expect(navLocator).toBeVisible();
 
