@@ -6,7 +6,7 @@ export class NavigationPage {
    */
   constructor(page) {
     this.page = page;
-    this.navLocator = page.locator('//nav[contains(@class, "desktop:items-center hidden")]');
+    this.navLocator = page.locator('//nav[contains(@class, "desktop:items-center hidden desktop:flex")]');
     this.navItems = this.navLocator.locator('a');
     this.SpotMarketSection = page.locator("//h2[contains(text(),'Spot market')]/ancestor::section");
     this.CryptoNames = page.locator("//tbody/tr/td//div/span[contains(@class,'font-semibold text-white')]");
